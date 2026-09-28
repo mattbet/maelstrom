@@ -1,0 +1,18 @@
+version: "1"
+
+defaults:
+  managed: true
+  environment: production
+
+connections:
+  - id: "airflowdb"
+    name: "Airflow DB"
+    type: postgres
+    host: airflow-postgres
+    port: 5432
+    database: airflow_db
+    user: airflow_user
+    password: ${AIRFLOWDB_PASSWORD}
+    roles: ["admin"]
+    color: "#10B981"
+
