@@ -1,3 +1,14 @@
+x-airflow-common:
+  &airflow-common
+  image: apache/airflow:2.10.4
+  dns:
+    - 192.168.1.1
+    - 8.8.8.8
+  environment:
+    &airflow-common-env
+    TZ: "Europe/Rome"
+    AIRFLOW__CORE__DEFAULT_TIMEZONE: "Europe/Rome"
+    AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: "Europe/Rome"
 x-airflow-volumes: &airflow-volumes
   - ./dags:/opt/airflow/dags
   - ./logs:/opt/airflow/logs

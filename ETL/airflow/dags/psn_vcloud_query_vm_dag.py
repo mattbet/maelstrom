@@ -1,14 +1,13 @@
-# dags/vcloud_to_postgres_dag.py
+# dags/psn_vcloud_query_vm_dag_1.py
 from datetime import datetime, timedelta
-import json  # <-- AGGIUNTO PER GESTIRE I DIZIONARI
+import json
 import requests
 from airflow import DAG
+from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
-from airflow.utils import timezone
 
-# Importiamo la funzione e la URL dal modulo comune
-from DADC4A14445_refresh import vcloud_login_refresh, VCLOUD_URL
+from psn_vcloud_token_renew_8 import get_access_token
 
 default_args = {
     'owner': 'data_team',
@@ -17,24 +16,44 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
+# Costante del Connection ID salvato nei pannelli di Airflow
+CONN_ID = "postgres_airflow"
+# Prende lo schema dalle variabili di Airflow (se manca usa 'maelstrom')
+schema = Variable.get("db_schema", default_var="maelstrom")
+
 def clean_json_field(field_value):
-    """Utility per convertire strutture complesse (dict, list) in stringhe JSON prima del DB"""
     if isinstance(field_value, (dict, list)):
         return json.dumps(field_value)
     return field_value
 
-def estrai_e_carica_vms(**kwargs):
-    ti = kwargs['ti']
-    # Riceve il token passato da DADC4A14445_refresh
-    token = ti.xcom_pull(task_ids='refresh_vcloud_token')
+def esegui_rinnovo_token(**kwargs):
+    """Task 1: Prende lo schema dalle variabili e chiama lo script passandogli i dati"""
+
     
+    # Chiama la funzione dello script esterno passando i parametri richiesti
+    risultato = get_access_token(postgres_conn_id=CONN_ID, db_schema=schema)
+    # Ritorna il dizionario (Airflow lo salverà automaticamente in XCom)
+    return risultato
+
+def estrai_e_carica_vms(**kwargs):
+    """Task 2: Estrae i dati vCloud e aggiorna la tabella usando la connessione di Airflow"""
+    ti = kwargs['ti']
+    
+    # Recupera i dati generati dal Task 1 tramite XCom
+    vcloud_data = ti.xcom_pull(task_ids='refresh_vcloud_token')
+    if not vcloud_data:
+        raise ValueError("Dati del token non trovati in XCom.")
+        
+    token = vcloud_data.get('access_token')
+    vcloud_url = vcloud_data.get('vcloud_url')
+
     auth_headers = {
         "Accept": "application/*+json;version=38.0",
         "Authorization": f"Bearer {token}" 
     }
 
-    query_url = f"{VCLOUD_URL}/api/query?type=vm"
-    print("📡 Estrazione dati VM tramite token di Console...")
+    query_url = f"{vcloud_url}/api/query?type=vm"
+    print(f"📡 Estrazione dati VM da: {query_url}")
     response = requests.get(query_url, headers=auth_headers, verify=False, timeout=30)
     
     if response.status_code != 200:
@@ -42,20 +61,20 @@ def estrai_e_carica_vms(**kwargs):
         
     records = response.json().get('record', [])
     if not records:
-        print("Nessuna VM trouvata.")
+        print("Nessuna VM trovata.")
         return
 
-    orario_inserimento = timezone.utcnow()
+    marca_temporale = str(datetime.now()).split('.')[0]
     dati_da_inserire = [
          (
              item.get('href').split('/')[-1] if item.get('href') else None, 
              item.get('_type'), 
-             clean_json_field(item.get('link')),          # <-- APPLICATO JSON CLEANING
-             clean_json_field(item.get('metadata')),      # <-- APPLICATO JSON CLEANING
+             clean_json_field(item.get('link')),          
+             clean_json_field(item.get('metadata')),      
              item.get('href'), 
              item.get('id'), 
              item.get('type'), 
-             clean_json_field(item.get('otherAttributes')),# <-- APPLICATO JSON CLEANING
+             clean_json_field(item.get('otherAttributes')),
              item.get('name'), 
              item.get('containerName'), 
              item.get('container'), 
@@ -84,7 +103,7 @@ def estrai_e_carica_vms(**kwargs):
              item.get('isInMaintenanceMode'), 
              item.get('isAutoNature'), 
              item.get('storageProfileName'), 
-             clean_json_field(item.get('snapshot')),      # <-- APPLICATO JSON CLEANING
+             clean_json_field(item.get('snapshot')),      
              item.get('snapshotCreated'), 
              item.get('gcStatus'), 
              item.get('autoUndeployDate'), 
@@ -103,15 +122,15 @@ def estrai_e_carica_vms(**kwargs):
              item.get('firmware'), 
              item.get('tpmPresent'), 
              item.get('replicationState'), 
-             orario_inserimento
+             marca_temporale
          )
         for item in records
     ]
 
-    # NOTA: Assicurati di usare 'postgres_airflow' che hai creato sui pannelli Airflow!
-    pg_hook = PostgresHook(postgres_conn_id='postgres_airflow')
+    # Utilizza la costante del DB impostata nel DAG per caricare i dati finali
+    pg_hook = PostgresHook(postgres_conn_id=CONN_ID)
     pg_hook.insert_rows(
-        table='vcloud_vms_report', 
+        table=f'{schema}.tab_psn_vcloud_vm', 
         rows=dati_da_inserire, 
         target_fields=[
             'vcloud_extracted_id', '_type', 'link', 'metadata', 'href', 'id', 'type', 
@@ -126,30 +145,27 @@ def estrai_e_carica_vms(**kwargs):
             'is_auto_delete_notified', 'is_compute_policy_compliant', 'vm_sizing_policy_id', 
             'vm_placement_policy_id', 'encrypted', 'date_created', 'total_storage_allocated_mb', 
             'is_expired', 'default_storage_policy_name', 'has_vgpu_policy', 'firmware', 
-            'tpm_present', 'replication_state', 'data_inserimento'
+            'tpm_present', 'replication_state', 'marca_temporale'
         ]
     )
-    print("✅ Database Postgres aggiornato.")
+    print("✅ Tabella maelstrom.tab_psn_vcloud_vm aggiornata su Postgres.")
 
 with DAG(
     dag_id='psn_vcloud_estrazione_vm',
     default_args=default_args,
-#    schedule_interval='@daily',
-    schedule_interval=None,  # Disattiva la pianificazione automatica,
+    schedule=None,
     catchup=False,
     max_active_runs=1
 ) as dag:
 
     task_refresh_token = PythonOperator(
         task_id='refresh_vcloud_token',
-        python_callable=vcloud_login_refresh,
-        provide_context=True
+        python_callable=esegui_rinnovo_token
     )
 
     task_vms = PythonOperator(
         task_id='estrai_vms_to_postgres',
-        python_callable=estrai_e_carica_vms,
-        provide_context=True
+        python_callable=estrai_e_carica_vms
     )
 
     task_refresh_token >> task_vms
