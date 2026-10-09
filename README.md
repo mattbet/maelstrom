@@ -2,7 +2,7 @@
 
 > Configurare un insieme di strumenti opensource che raccolga dati da varie sorgenti e ne permetta la riconciliazione, per alimentare un CMDB.
  
-# Strumenti di supporto utilizzati
+# Strumenti di sviluppo utilizzati
 
 
 |  |  | 
@@ -26,3 +26,7 @@ The World's Most Advanced Open Source Relational Database
 # Catena di sviluppo
 
 ![Image](https://github.com/mattbet/maelstrom/blob/main/Docs/Flusso_Sviluppo.png)
+
+VS Code viene utilizzato con i plugin per Python, container e Github. Il codice viene scritto, testato ed aggiornato sul repository. Alcune fasi di revisione del codice vengono svolte con Notepad++ sugli stessi file.
+Firefox viene usato per intergire con AirFlow e con il DB tramite LibreDB Studio, pur avendo client locali ho preferito costruire una soluzione completa e autonoma nell'uso, da redistribuire.
+Per ditare i fiel markdown ho utilizzato un pulin per Chorme, per semplicità.
