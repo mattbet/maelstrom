@@ -23,3 +23,6 @@
 
 The World's Most Advanced Open Source Relational Database
 
+# Catena di sviluppo
+
+![Image](https://github.com/mattbet/maelstrom/blob/main/Docs/Flusso_Sviluppo.png)
