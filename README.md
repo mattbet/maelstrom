@@ -1,10 +1,11 @@
 # Maelstrom
 
 >This project aim to setup a workflow to collect data from various source as:
->- virtualization platforms
->- infrastructure monitoring software
+>- Virtualization platforms
+>- Infrastructure monitoring software
 >- SIEM and threat intelligence platforms
-> -directory services 
+>- Directory services
+>
 > All this data will be collected, reconciled, and entered into a single CMDB to support governance and operations functions.
 > All sotwares used wil be Open Source or bespoke. 
  
