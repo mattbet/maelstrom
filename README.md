@@ -7,7 +7,7 @@
 >- Directory services
 >
 > All this data will be collected, reconciled, and entered into a single CMDB to support governance and operations functions.
-> All sotwares used wil be Open Source or bespoke. 
+> All sotwares used will be Open Source or bespoke. 
  
 # Development tools
 
