@@ -1,8 +1,15 @@
 # Maelstrom
 
-> Configurare un insieme di strumenti opensource che raccolga dati da varie sorgenti e ne permetta la riconciliazione, per alimentare un CMDB.
+>This project aim to setup a workflow to collect data from various source as:
+>- Virtualization platforms
+>- Infrastructure monitoring software
+>- SIEM and threat intelligence platforms
+>- Directory services
+>
+> All this data will be collected, reconciled, and entered into a single CMDB to support governance and operations functions.
+> All sotwares used will be Open Source or bespoke. 
  
-# Strumenti di sviluppo utilizzati
+# Development tools
 
 
 |  |  | 
@@ -14,19 +21,19 @@
 | [VS code](https://code.visualstudio.com/)  | The open source AI code editor  | 
 
 
-# Applicativi  utilizzati
+# Applications 
 
-## [ETL](https://github.com/mattbet/cmdb/tree/main/ETL)
+## [ETL](https://github.com/mattbet/maelstrom/tree/main/ETL)
 
 ## DATABASE
 [PostgreSQL](https://www.postgresql.org/)
 
 The World's Most Advanced Open Source Relational Database
 
-# Catena di sviluppo
+# Development toolchain 
 
 ![Image](https://github.com/mattbet/maelstrom/blob/main/Docs/Flusso_Sviluppo.png)
 
-VS Code viene utilizzato con i plugin per Python, container e Github. Il codice viene scritto, testato ed aggiornato sul repository. Alcune fasi di revisione del codice vengono svolte con Notepad++ sugli stessi file.
-Firefox viene usato per intergire con AirFlow e con il DB tramite LibreDB Studio, pur avendo client locali ho preferito costruire una soluzione completa e autonoma nell'uso, da redistribuire.
-Per ditare i fiel markdown ho utilizzato un pulin per Chorme, per semplicità.
+VS Code is used with plugins for Python, containers, and GitHub. Code is written, tested, and updated within the repository. Certain code review stages are carried out using Notepad++ on the same files.
+Firefox is used to interact with AirFlow and the database via LibreDB Studio; although local clients are available, I opted to build a complete, self-contained solution that is easy to redistribute.
+For editing Markdown files, I have used a Chrome plugin, for the sake of simplicity.

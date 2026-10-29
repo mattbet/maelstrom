@@ -1,0 +1,4 @@
+#FROM apache/airflow:latest
+FROM apache/airflow:3.3.2
+# Installa il pacchetto di DagSmith
+RUN pip install --no-cache-dir airflow-dagsmith

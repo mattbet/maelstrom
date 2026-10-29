@@ -1,4 +1,4 @@
-# dags/psn_vcloud_query_vm_dag_1.py
+# dags/psn_vcloud_query_vm_dag.py
 from datetime import datetime, timedelta
 import json
 import requests
@@ -7,14 +7,14 @@ from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 
-from psn_vcloud_token_renew_8 import get_access_token
+from psn_vcloud_token_renew import get_access_token
 
-default_args = {
-    'owner': 'data_team',
-    'start_date': datetime(2026, 1, 1),
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5),
-}
+# default_args = {
+    # 'owner': 'data_team',
+    # 'start_date': datetime(2026, 1, 1),
+    # 'retries': 1,
+    # 'retry_delay': timedelta(minutes=5),
+# }
 
 # Costante del Connection ID salvato nei pannelli di Airflow
 CONN_ID = "postgres_airflow"
@@ -64,7 +64,7 @@ def estrai_e_carica_vms(**kwargs):
         print("Nessuna VM trovata.")
         return
 
-    marca_temporale = str(datetime.now()).split('.')[0]
+    import_date = str(datetime.now()).split('.')[0]
     dati_da_inserire = [
          (
              item.get('href').split('/')[-1] if item.get('href') else None, 
@@ -122,7 +122,7 @@ def estrai_e_carica_vms(**kwargs):
              item.get('firmware'), 
              item.get('tpmPresent'), 
              item.get('replicationState'), 
-             marca_temporale
+             import_date
          )
         for item in records
     ]
@@ -145,14 +145,19 @@ def estrai_e_carica_vms(**kwargs):
             'is_auto_delete_notified', 'is_compute_policy_compliant', 'vm_sizing_policy_id', 
             'vm_placement_policy_id', 'encrypted', 'date_created', 'total_storage_allocated_mb', 
             'is_expired', 'default_storage_policy_name', 'has_vgpu_policy', 'firmware', 
-            'tpm_present', 'replication_state', 'marca_temporale'
+            'tpm_present', 'replication_state', 'import_date'
         ]
     )
     print("✅ Tabella maelstrom.tab_psn_vcloud_vm aggiornata su Postgres.")
 
 with DAG(
     dag_id='psn_vcloud_estrazione_vm',
-    default_args=default_args,
+    default_args={
+    'owner': 'data_team',
+    'start_date': datetime(2026, 1, 1),
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5),
+},
     schedule=None,
     catchup=False,
     max_active_runs=1

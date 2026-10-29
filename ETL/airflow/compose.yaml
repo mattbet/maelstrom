@@ -14,7 +14,8 @@ x-airflow-volumes: &airflow-volumes
   - ./logs:/opt/airflow/logs
   - ./plugins:/opt/airflow/plugins
   - ./config/airflow.cfg:/opt/airflow/airflow.cfg
-
+  - ./data_in:/opt/airflow/data_in
+  
 services:
   postgres:
     image: postgres:15-alpine

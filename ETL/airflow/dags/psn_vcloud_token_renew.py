@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# psn_vcloud_token_renew_8.py
+# psn_vcloud_token_renew.py
 import logging
 import time
 import requests

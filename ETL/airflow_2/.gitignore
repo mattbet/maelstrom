@@ -1,0 +1,13 @@
+# Docker ed Environment
+.env
+__pycache__/
+*.pyc
+
+# Dati locali dei database (se montati come cartelle locali)
+postgres_data/
+libredb_data/
+
+# File di log e temporanei di Airflow
+logs/
+airflow-webserver.pid
+airflow-worker.pid

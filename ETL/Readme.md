@@ -1,7 +1,6 @@
 # ETL
 
-Il primo applicativo è un ETL che provveda ad interrogare le API delle sorgenti e inserisca i valori in un database.
-La scelta è così assortita:
+The first application is an ETL that queries source APIs or parses files, then inserts the values ​​into a database. The options under consideration are:
 
 [Apache Airflow ](https://airflow.apache.org/)
 
@@ -11,11 +10,11 @@ Apache Airflow® is a platform created by the community to programmatically auth
 
 An open source platform for data integration and orchestration. 
 
-### Confronto
+### Comparison
 
 [Apache Airflow vs Apache Hop: Which Tool is Better for Your Next Project?](https://www.projectpro.io/compare/apache-airflow-vs-apache-hop)
 
-### Alternative
+### Alternatives
 
 [Luigi ](https://github.com/spotify/luigi)
 
