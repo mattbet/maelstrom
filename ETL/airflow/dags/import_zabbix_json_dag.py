@@ -19,8 +19,8 @@ schema = Variable.get("db_schema", default_var="maelstrom")
 tabella_destinazione = "tab_zabbix_hosts"
 
 with DAG(
-    dag_id='carica_hosts_da_volume_data_in',
-    start_date=datetime(2026, 1, 1),
+    dag_id='Zabbix_hosts_da_volume_data_in',
+    start_date=datetime(2026, 9, 10),
     schedule_interval=None,  # Esecuzione solo manuale/trigger
     catchup=False,
     tags=['zabbix', 'json', 'postgres'],

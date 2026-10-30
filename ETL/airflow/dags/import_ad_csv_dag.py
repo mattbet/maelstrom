@@ -48,7 +48,7 @@ COLONNE_DB_FINALI = list(MAPPA_COLONNE.values()) + ["import_date"]
 
 with DAG(
     dag_id="import_active_directory_csv",
-    start_date=datetime(2026, 1, 1),
+    start_date=datetime(2026, 9, 10),
     schedule=None,
     catchup=False,
     params=default_params,
